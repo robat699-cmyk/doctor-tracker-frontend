@@ -67,13 +67,14 @@ export function DoctorsPage() {
           limit: 9,
         },
       });
-      setDoctors(res.data.items);
-      setTotal(res.data.total);
-      setTotalPages(res.data.totalPages);
-      if (res.data.page !== page) {
+      setDoctors(res.data.items || (res.data as any).data || []);
+      setTotal(res.data.total ?? (res.data as any).meta?.total ?? 0);
+      setTotalPages(res.data.totalPages ?? (res.data as any).meta?.totalPages ?? 1);
+      if (res.data.page !== page && res.data.page) {
         setPage(res.data.page);
       }
     } catch {
+      setDoctors([]);
       showToast('Failed to load doctors directory.', 'error');
     } finally {
       setLoading(false);
@@ -251,7 +252,7 @@ export function DoctorsPage() {
       {/* Directory Content */}
       {loading ? (
         viewMode === 'cards' ? <CardsGridSkeleton count={6} /> : <TableSkeleton rows={6} cols={6} />
-      ) : doctors.length === 0 ? (
+      ) : (doctors || []).length === 0 ? (
         <div className="bg-white/95 dark:bg-slate-900/95 border border-[#E2E8F0] dark:border-slate-800 rounded-lg py-16 px-4 text-center">
           <div className="w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center mx-auto mb-3">
             <Stethoscope className="w-5 h-5" />
@@ -288,7 +289,7 @@ export function DoctorsPage() {
         </div>
       ) : viewMode === 'cards' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {doctors.map((doc) => (
+          {(doctors || []).map((doc) => (
             <article
               key={doc.id}
               className="bg-white/95 dark:bg-slate-900/95 border border-[#E2E8F0] dark:border-slate-800 rounded-lg p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
@@ -367,7 +368,7 @@ export function DoctorsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                {doctors.map((doc) => (
+                {(doctors || []).map((doc) => (
                   <tr key={doc.id} className="h-14 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
                     <td className="px-4 text-[13px] font-medium text-[#0F172A] dark:text-slate-100 whitespace-nowrap">
                       <Link to={`/doctors/${doc.id}`} className="hover:text-[#2563EB] dark:hover:text-blue-400">

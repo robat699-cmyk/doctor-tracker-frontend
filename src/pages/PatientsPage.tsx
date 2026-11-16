@@ -79,9 +79,9 @@ export function PatientsPage() {
   useEffect(() => {
     api
       .get<PaginatedResponse<Doctor>>('/doctors', { params: { limit: 100 } })
-      .then((res) => setDoctors(res.data.items))
+      .then((res) => setDoctors(res.data.items || (res.data as any).data || []))
       .catch(() => {
-        // Doctor filter options fallback
+        setDoctors([]);
       });
   }, []);
 
@@ -100,13 +100,14 @@ export function PatientsPage() {
           limit: 10,
         },
       });
-      setPatients(res.data.items);
-      setTotal(res.data.total);
-      setTotalPages(res.data.totalPages);
-      if (res.data.page !== page) {
+      setPatients(res.data.items || (res.data as any).data || []);
+      setTotal(res.data.total ?? (res.data as any).meta?.total ?? 0);
+      setTotalPages(res.data.totalPages ?? (res.data as any).meta?.totalPages ?? 1);
+      if (res.data.page !== page && res.data.page) {
         setPage(res.data.page);
       }
     } catch {
+      setPatients([]);
       showToast('Failed to load patient directory.', 'error');
     } finally {
       setLoading(false);
@@ -250,7 +251,7 @@ export function PatientsPage() {
             >
               <option value="All">All Doctors</option>
               <option value="unassigned">Unassigned</option>
-              {doctors.map((doc) => (
+              {(doctors || []).map((doc) => (
                 <option key={doc.id} value={doc.id}>
                   {doc.name}
                 </option>
@@ -300,7 +301,7 @@ export function PatientsPage() {
       {/* Patient Directory Table / Mobile Stack */}
       {loading ? (
         <TableSkeleton rows={8} cols={8} />
-      ) : patients.length === 0 ? (
+      ) : (patients || []).length === 0 ? (
         <div className="bg-white/95 dark:bg-slate-900/95 border border-[#E2E8F0] dark:border-slate-800 rounded-lg py-16 px-4 text-center">
           <div className="w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center mx-auto mb-3">
             <Users className="w-5 h-5" />
@@ -353,7 +354,7 @@ export function PatientsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                  {patients.map((patient) => (
+                  {(patients || []).map((patient) => (
                     <tr key={patient.id} className="h-16 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
                       <td className="px-4 whitespace-nowrap">
                         <div className="text-[13px] font-medium text-[#0F172A] dark:text-slate-100">
@@ -434,7 +435,7 @@ export function PatientsPage() {
 
           {/* Mobile Stacked Cards */}
           <div className="md:hidden space-y-3">
-            {patients.map((patient) => (
+            {(patients || []).map((patient) => (
               <div
                 key={patient.id}
                 className="bg-white/95 dark:bg-slate-900/95 border border-[#E2E8F0] dark:border-slate-800 rounded-lg p-4 space-y-3"
