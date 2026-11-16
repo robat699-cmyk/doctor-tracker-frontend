@@ -36,8 +36,9 @@ function formatSafeDate(isoDate: string): string {
   return format(parsed, 'MMM d, yyyy');
 }
 
-function DeltaIndicator({ value, invertColor = false }: { value: number; invertColor?: boolean }) {
-  const isPositive = value >= 0;
+function DeltaIndicator({ value = 0, invertColor = false }: { value?: number; invertColor?: boolean }) {
+  const safeVal = typeof value === 'number' && !isNaN(value) ? value : 0;
+  const isPositive = safeVal >= 0;
   const isGood = invertColor ? !isPositive : isPositive;
   const colorClass = isGood
     ? 'text-[#059669] dark:text-emerald-400'
@@ -46,7 +47,7 @@ function DeltaIndicator({ value, invertColor = false }: { value: number; invertC
 
   return (
     <span className={`inline-flex items-center gap-0.5 text-xs font-medium tabular-nums ${colorClass}`}>
-      <span>{`${isPositive ? '+' : ''}${value}%`}</span>
+      <span>{`${isPositive ? '+' : ''}${safeVal}%`}</span>
       <Icon className="w-3.5 h-3.5" />
     </span>
   );
@@ -171,7 +172,7 @@ export function DashboardPage() {
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-[#64748B] dark:text-slate-400">Avg Patients / Doctor</p>
                 <p className="mt-1 text-3xl font-semibold tracking-tight text-[#0F172A] dark:text-white tabular-nums">
-                  {data.avgPatientsPerDoctor.toFixed(1)}
+                  {(Number(data.avgPatientsPerDoctor) || 0).toFixed(1)}
                 </p>
                 <div className="mt-1 flex items-center gap-1.5">
                   <DeltaIndicator value={data.avgLoadDeltaPercent} />
