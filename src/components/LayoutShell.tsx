@@ -192,7 +192,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
 
       {/* Main content shell */}
       <div className="relative z-10 lg:pl-64 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-20 h-16 bg-white/94 dark:bg-slate-900/94 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 flex items-center justify-between gap-4">
+        <header className="sticky top-0 z-20 h-16 bg-white/94 dark:bg-slate-900/94 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 xl:px-10 flex items-center justify-between gap-4 w-full">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
@@ -314,7 +314,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 px-4 sm:px-8 pt-6 pb-20 max-w-[1440px] w-full mx-auto">
+        <main className="flex-1 px-4 sm:px-8 xl:px-10 pt-6 pb-20 w-full">
           {children}
         </main>
       </div>

@@ -133,12 +133,21 @@ export function BookingsPage() {
         api.get<{ logs: ReminderLog[] }>('/reminders', { params: { limit: 25 } }),
       ]);
 
-      setBookings(bookingsRes.data.items);
-      setStats(bookingsRes.data.stats);
-      setTotal(bookingsRes.data.total);
-      setTotalPages(bookingsRes.data.totalPages);
-      setLogs(logsRes.data.logs || []);
+      setBookings(bookingsRes.data.items || (bookingsRes.data as any).data || []);
+      setStats(
+        bookingsRes.data.stats || {
+          upcomingCount: 0,
+          patientRemindersSent: 0,
+          doctorRemindersSent: 0,
+          pendingReminders: 0,
+        }
+      );
+      setTotal(bookingsRes.data.total ?? 0);
+      setTotalPages(bookingsRes.data.totalPages ?? 1);
+      setLogs(logsRes.data.logs || (logsRes.data as any).data || []);
     } catch {
+      setBookings([]);
+      setLogs([]);
       showToast('Failed to load pre-booking sessions.', 'error');
     } finally {
       setLoading(false);
@@ -261,7 +270,7 @@ export function BookingsPage() {
           <div>
             <p className="text-xs font-medium text-[#64748B] dark:text-slate-400">Upcoming Sessions</p>
             <p className="mt-1 text-2xl font-semibold text-[#0F172A] dark:text-white tabular-nums">
-              {stats.upcomingCount}
+              {stats?.upcomingCount ?? 0}
             </p>
           </div>
         </div>
@@ -273,7 +282,7 @@ export function BookingsPage() {
           <div>
             <p className="text-xs font-medium text-[#64748B] dark:text-slate-400">Patient Phone Reminders</p>
             <p className="mt-1 text-2xl font-semibold text-[#0F172A] dark:text-white tabular-nums">
-              {stats.patientRemindersSent}
+              {stats?.patientRemindersSent ?? 0}
             </p>
           </div>
         </div>
@@ -285,7 +294,7 @@ export function BookingsPage() {
           <div>
             <p className="text-xs font-medium text-[#64748B] dark:text-slate-400">Doctor Phone Alerts</p>
             <p className="mt-1 text-2xl font-semibold text-[#0F172A] dark:text-white tabular-nums">
-              {stats.doctorRemindersSent}
+              {stats?.doctorRemindersSent ?? 0}
             </p>
           </div>
         </div>
@@ -297,7 +306,7 @@ export function BookingsPage() {
           <div>
             <p className="text-xs font-medium text-[#64748B] dark:text-slate-400">Pending Reminders</p>
             <p className="mt-1 text-2xl font-semibold text-[#0F172A] dark:text-white tabular-nums">
-              {stats.pendingReminders}
+              {stats?.pendingReminders ?? 0}
             </p>
           </div>
         </div>
@@ -346,7 +355,7 @@ export function BookingsPage() {
               className="px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-[#0F172A] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="All">All Doctors</option>
-              {doctors.map((d) => (
+              {(doctors || []).map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}
                 </option>
@@ -387,7 +396,7 @@ export function BookingsPage() {
                 />
               ))}
             </div>
-          ) : bookings.length === 0 ? (
+          ) : (bookings || []).length === 0 ? (
             <div className="bg-white/95 dark:bg-slate-900/95 border border-[#E2E8F0] dark:border-slate-800 rounded-lg py-14 px-6 text-center">
               <CalendarClock className="w-8 h-8 text-slate-400 mx-auto mb-3" />
               <h2 className="text-base font-semibold text-[#0F172A] dark:text-white">
@@ -583,17 +592,17 @@ export function BookingsPage() {
               </p>
             </div>
             <span className="text-xs font-semibold text-[#2563EB] dark:text-blue-400 tabular-nums">
-              {logs.length}
+              {(logs || []).length}
             </span>
           </div>
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[680px] overflow-y-auto">
-            {logs.length === 0 ? (
+            {(logs || []).length === 0 ? (
               <p className="px-5 py-10 text-xs text-slate-500 dark:text-slate-400 text-center">
                 No phone reminders dispatched yet.
               </p>
             ) : (
-              logs.map((log) => (
+              (logs || []).map((log) => (
                 <div key={log.id} className="px-5 py-3.5 space-y-1.5">
                   <div className="flex items-center justify-between gap-2">
                     <span
